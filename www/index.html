@@ -204,8 +204,9 @@ function pk(k){
       show('sbt');
       document.querySelector('#sbt .sub').textContent='Checking…';
       try {
-        const r=await fetch(`${API}/api/public/qr-attendance/pin-clock`,{
+    const r=await fetch(`${API}/api/public/qr-attendance/pin-clock`,{
           method:'POST',headers:{'Content-Type':'application/json'},
+          mode:'cors',
           body:JSON.stringify({propertyQrToken:qrToken,pin,action:'GET_STATE',gpsLat:gps?.lat,gpsLng:gps?.lng,gpsAccuracyM:gps?.acc})
         });
         const j=await r.json();const d=j.data||j;
@@ -325,6 +326,7 @@ async function sub(action){
   try{
     const r=await fetch(`${API}/api/public/qr-attendance/pin-clock`,{
       method:'POST',headers:{'Content-Type':'application/json'},
+      mode:'cors',
       body:JSON.stringify({propertyQrToken:qrToken,pin,action,gpsLat:gps?.lat,gpsLng:gps?.lng,gpsAccuracyM:gps?.acc})
     });
     const j=await r.json();const d=j.data||j;
