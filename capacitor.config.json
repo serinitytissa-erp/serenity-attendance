@@ -1,0 +1,13 @@
+{
+  "appId": "com.serenitytissa.attendance",
+  "appName": "Serenity Attendance",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "plugins": {
+    "Geolocation": {
+      "permissions": ["location"]
+    }
+  }
+}
