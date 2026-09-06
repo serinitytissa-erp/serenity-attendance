@@ -139,18 +139,14 @@
   <p class="note">PIN auto-submits after 4+ digits</p>
 </div>
 
-<!-- Action -->
+<!-- Action — smart single button based on state -->
 <div id="sa" class="screen">
   <p class="brand">SERENITY HMS</p>
-  <p class="title">What are you doing?</p>
-  <p class="sub">Tap to record attendance</p>
-  <div class="ag">
-    <button class="ab in"  onclick="sub('CLOCK_IN')">   <span class="ei">✅</span>Clock In</button>
-    <button class="ab brk" onclick="sub('BREAK_START')"><span class="ei">☕</span>Break</button>
-    <button class="ab res" onclick="sub('BREAK_END')">  <span class="ei">🔙</span>Resume</button>
-    <button class="ab out" onclick="sub('CLOCK_OUT')">  <span class="ei">👋</span>Clock Out</button>
+  <p class="title" id="at">What are you doing?</p>
+  <p class="sub" id="as">Tap to record attendance</p>
+  <div id="ag" style="width:100%">
+    <!-- Filled dynamically based on state -->
   </div>
-  <button class="btn-ghost" onclick="show('sp')">← Back</button>
 </div>
 
 <!-- Submitting -->
@@ -199,10 +195,36 @@ function pk(k){
   // update dots
   for(let i=0;i<6;i++) document.getElementById('d'+i).classList.toggle('on',i<pin.length);
   document.getElementById('pe').textContent='';
-  // auto-submit when 4+ digits entered and user stops (after brief delay)
+  // Auto-submit when 4+ digits entered
   if(pin.length>=4){
     clearTimeout(window._pt);
-    window._pt=setTimeout(()=>{if(pin.length>=4) show('sa');},600);
+    window._pt=setTimeout(async ()=>{
+      if(pin.length<4) return;
+      // Get current state from server
+      show('sbt');
+      document.querySelector('#sbt .sub').textContent='Checking…';
+      try {
+        const r=await fetch(`${API}/api/public/qr-attendance/pin-clock`,{
+          method:'POST',headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({propertyQrToken:qrToken,pin,action:'GET_STATE',gpsLat:gps?.lat,gpsLng:gps?.lng,gpsAccuracyM:gps?.acc})
+        });
+        const j=await r.json();const d=j.data||j;
+        if(!r.ok){
+          if(r.status===401){
+            document.getElementById('pe').textContent='❌ Incorrect PIN. Try again.';
+            pin='';for(let i=0;i<6;i++)document.getElementById('d'+i).classList.remove('on');
+            show('sp');
+          } else {
+            document.getElementById('erm').textContent=d.error||'Error. Try again.';show('ser');
+          }
+          return;
+        }
+        // Show smart action button
+        showSmartAction(d.nextAction, d.employeeName, d.designation);
+      } catch(e){
+        document.getElementById('erm').textContent='Cannot connect to server.\nError: '+(e.message||e);show('ser');
+      }
+    },600);
   }
 }
 
@@ -268,7 +290,36 @@ function qrLoop(){
 function stopCam(){if(sl)cancelAnimationFrame(sl);if(vs){vs.getTracks().forEach(t=>t.stop());vs=null;}}
 function skipQr(){stopCam();if(qrToken){pin='';show('sp');}else{document.getElementById('erm').textContent='No QR saved. Scan the entrance QR first.';show('ser');}}
 
-// Submit action
+// Show smart single action button based on state
+function showSmartAction(nextAction, name, designation) {
+  const cfg = {
+    CLOCK_IN:    { emoji:'✅', label:'Clock In',    cls:'in',  color:'#10b981' },
+    BREAK_START: { emoji:'☕', label:'Take Break',  cls:'brk', color:'#f59e0b' },
+    BREAK_END:   { emoji:'🔙', label:'Resume Work', cls:'res', color:'#3b82f6' },
+    DONE:        { emoji:'🌙', label:'Shift Done',  cls:'out', color:'#64748b' },
+  };
+  const c = cfg[nextAction] || cfg.CLOCK_IN;
+  const ag = document.getElementById('ag');
+
+  if(nextAction === 'DONE'){
+    ag.innerHTML=`<div style="text-align:center;padding:20px">
+      <p style="font-size:48px">🌙</p>
+      <p style="font-size:18px;font-weight:700;margin:8px 0">Shift complete for today!</p>
+      <p style="color:#94a3b8;font-size:13px">You will be automatically clocked out after 8 hours.</p>
+    </div>`;
+  } else {
+    ag.innerHTML=`
+      <p style="font-size:14px;color:#94a3b8;margin-bottom:12px">Welcome, <strong style="color:#fff">${name}</strong></p>
+      <p style="font-size:12px;color:#64748b;margin-bottom:16px">${designation}</p>
+      <button class="ab ${c.cls}" style="width:100%;min-height:100px;font-size:20px;background:${c.color}" onclick="sub('${nextAction}')">
+        <span class="ei" style="font-size:48px">${c.emoji}</span>
+        ${c.label}
+      </button>`;
+  }
+  document.getElementById('at').textContent = '';
+  document.getElementById('as').textContent = '';
+  show('sa');
+}
 async function sub(action){
   show('sbt');
   try{
