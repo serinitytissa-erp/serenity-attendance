@@ -296,9 +296,14 @@ async function sub(action){
     document.getElementById('snm').textContent=d.employeeName||'';
     document.getElementById('sdt').textContent=(d.designation||'')+(d.department?' · '+d.department:'');
     show('ss');
-    let s=5;const t=setInterval(()=>{s--;document.getElementById('scd').textContent=`Closing in ${s}s…`;if(s<=0){clearInterval(t);restart();}},1000);
+    // If auto clocked out — show special message
+    if(d.autoClockOut){
+      document.getElementById('scd').textContent='🌙 Shift complete! Rest well.';
+    } else {
+      let s=5;const t=setInterval(()=>{s--;document.getElementById('scd').textContent=`Closing in ${s}s…`;if(s<=0){clearInterval(t);restart();}},1000);
+    }
   } catch(e){
-    document.getElementById('erm').textContent='Cannot connect to server.\nCheck your internet connection.';show('ser');
+    document.getElementById('erm').textContent='Cannot connect to server.\nMake sure you have internet.\n\nError: '+(e.message||e);show('ser');
   }
 }
 
