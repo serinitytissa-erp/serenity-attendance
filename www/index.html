@@ -43,6 +43,8 @@
       background: #1e293b; border: 1px solid #334155; border-radius: 14px;
       color: #fff; font-size: 22px; font-weight: 600;
       height: 64px; cursor: pointer; transition: background 0.1s;
+      -webkit-user-select: none; user-select: none;
+      touch-action: manipulation;
     }
     .num-btn:active { background: #334155; }
     .num-btn.del { background: #0f172a; color: #94a3b8; font-size: 18px; }
@@ -344,12 +346,16 @@
       const btn = document.createElement('button');
       btn.className = 'num-btn' + (d === '⌫' ? ' del' : '');
       btn.textContent = d;
-      btn.onclick = () => {
+      // Use both touchstart and click for maximum compatibility
+      const handler = (e) => {
+        e.preventDefault();
         if (d === '⌫') { pin = pin.slice(0,-1); }
         else if (pin.length < 6) { pin += d; }
         updatePinDots();
         document.getElementById('pin-error').textContent = '';
       };
+      btn.addEventListener('touchstart', handler, { passive: false });
+      btn.addEventListener('click', handler);
       np.appendChild(btn);
     });
   })();
