@@ -17,54 +17,28 @@
     .btn{background:#10b981;color:#0f172a;border:none;border-radius:12px;font-size:16px;font-weight:700;padding:15px;width:100%;cursor:pointer}
     .btn:active{background:#059669}
     .btn-ghost{background:transparent;color:#64748b;border:none;font-size:13px;cursor:pointer;padding:6px}
-
-    /* GPS bar */
-    .bar{width:100%;height:5px;background:#1e293b;border-radius:99px;overflow:hidden}
-    .fill{height:100%;background:#10b981;border-radius:99px;animation:f 2s ease-in-out infinite alternate}
-    @keyframes f{from{width:25%}to{width:80%}}
-
-    /* PIN dots */
     .dots{display:flex;gap:10px;justify-content:center}
     .dot{width:16px;height:16px;border-radius:50%;border:2px solid #475569;background:transparent;transition:all .15s}
     .dot.on{background:#10b981;border-color:#10b981}
     .pin-msg{font-size:13px;min-height:18px;color:#ef4444}
-
-    /* NUMPAD — static HTML, large touch targets */
     .np{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;width:100%}
-    .nk{
-      background:#1e293b;border:1px solid #334155;border-radius:12px;
-      color:#fff;font-size:24px;font-weight:600;height:68px;
-      cursor:pointer;display:flex;align-items:center;justify-content:center;
-      -webkit-user-select:none;user-select:none;touch-action:manipulation;
-      border:none;outline:none;
-    }
+    .nk{background:#1e293b;border-radius:12px;color:#fff;font-size:24px;font-weight:600;height:68px;cursor:pointer;display:flex;align-items:center;justify-content:center;-webkit-user-select:none;user-select:none;touch-action:manipulation;border:none;outline:none;}
     .nk:active,.nk:focus{background:#334155}
     .nk.del{background:#0f172a;color:#94a3b8;font-size:20px}
-    .nk.empty{background:transparent;border-color:transparent;pointer-events:none}
-
-    /* Actions */
-    .ag{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%}
-    .ab{border:none;border-radius:16px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;padding:18px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;touch-action:manipulation}
+    .nk.empty{background:transparent;pointer-events:none}
+    .nk.ok{background:#10b981;color:#0f172a;font-size:26px;font-weight:900}
+    .nk.ok:disabled{background:#1e293b;color:#334155;cursor:default}
+    .ab{border:none;border-radius:16px;color:#fff;font-size:15px;font-weight:700;cursor:pointer;padding:18px 6px;display:flex;flex-direction:column;align-items:center;gap:6px;touch-action:manipulation;width:100%}
     .ab:active{opacity:.75}
     .ab .ei{font-size:30px}
-    .ab.in {background:#10b981}
-    .ab.brk{background:#f59e0b}
-    .ab.res{background:#3b82f6}
-    .ab.out{background:#ef4444}
-
-    /* Success */
     .sc{background:#1e293b;border-radius:14px;padding:18px;width:100%;display:flex;flex-direction:column;gap:5px}
     .sn{font-size:24px;font-weight:700}
     .st{font-size:36px;font-weight:700;color:#10b981;font-variant-numeric:tabular-nums}
     .brow{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
     .badge{font-size:11px;color:#10b981;font-weight:600}
     .note{font-size:12px;color:#475569}
-
-    /* Spinner */
     .spin{width:50px;height:50px;border-radius:50%;border:4px solid #1e293b;border-top-color:#10b981;animation:sp .8s linear infinite}
     @keyframes sp{to{transform:rotate(360deg)}}
-
-    /* QR */
     #qv{width:260px;height:260px;object-fit:cover;border-radius:14px;border:3px solid #10b981}
     .sf{position:relative;width:260px;height:260px}
     .cn{position:absolute;width:26px;height:26px;border-color:#10b981;border-style:solid}
@@ -76,52 +50,31 @@
 </head>
 <body>
 
-<!-- GPS -->
-<div id="sg" class="screen active">
+<!-- QR Scan — always first screen -->
+<div id="sq" class="screen active">
   <p class="brand">SERENITY HMS</p>
-  <p class="title">Attendance</p>
-  <p class="em">📍</p>
-  <p class="sub">Verifying your location…</p>
-  <div class="bar"><div class="fill"></div></div>
-  <p class="note" id="gs">Please allow location access</p>
-</div>
-
-<!-- GPS Error -->
-<div id="sge" class="screen">
-  <p class="brand">SERENITY HMS</p>
-  <p class="em">📍❌</p>
-  <p class="title">Location failed</p>
-  <div class="err-box" id="gem"></div>
-  <button class="btn" onclick="startGps()">Try again</button>
-</div>
-
-<!-- QR Scan -->
-<div id="sq" class="screen">
-  <p class="brand">SERENITY HMS</p>
-  <p class="em">📍✅</p>
   <p class="title">Scan QR Code</p>
-  <p class="sub">Point at the entrance QR</p>
+  <p class="sub">Point your camera at the entrance QR board</p>
   <div class="sf">
     <video id="qv" autoplay playsinline muted></video>
     <canvas id="qc" style="display:none"></canvas>
     <div class="cn tl"></div><div class="cn tr"></div>
     <div class="cn bl"></div><div class="cn br"></div>
   </div>
-  <button class="btn-ghost" onclick="skipQr()">Skip (use saved QR)</button>
+  <p class="note" id="scan-status">Starting camera…</p>
 </div>
 
 <!-- PIN -->
 <div id="sp" class="screen">
   <p class="brand">SERENITY HMS</p>
   <p class="title">Enter your PIN</p>
-  <p class="sub">Your 4–6 digit task PIN</p>
+  <p class="sub">Your 4–6 digit PIN</p>
   <div class="dots">
     <div class="dot" id="d0"></div><div class="dot" id="d1"></div>
     <div class="dot" id="d2"></div><div class="dot" id="d3"></div>
     <div class="dot" id="d4"></div><div class="dot" id="d5"></div>
   </div>
   <p class="pin-msg" id="pe"></p>
-  <!-- STATIC NUMPAD — no JavaScript rendering -->
   <div class="np">
     <button class="nk" onclick="pk('1')">1</button>
     <button class="nk" onclick="pk('2')">2</button>
@@ -132,27 +85,24 @@
     <button class="nk" onclick="pk('7')">7</button>
     <button class="nk" onclick="pk('8')">8</button>
     <button class="nk" onclick="pk('9')">9</button>
-    <button class="nk empty"></button>
-    <button class="nk" onclick="pk('0')">0</button>
     <button class="nk del" onclick="pk('X')">⌫</button>
+    <button class="nk" onclick="pk('0')">0</button>
+    <button class="nk ok" id="pin-ok" onclick="submitPin()" disabled>✓</button>
   </div>
-  <p class="note">PIN auto-submits after 4+ digits</p>
 </div>
 
-<!-- Action — smart single button based on state -->
+<!-- Action -->
 <div id="sa" class="screen">
   <p class="brand">SERENITY HMS</p>
-  <p class="title" id="at">What are you doing?</p>
-  <p class="sub" id="as">Tap to record attendance</p>
-  <div id="ag" style="width:100%">
-    <!-- Filled dynamically based on state -->
-  </div>
+  <p class="title" id="at"></p>
+  <p class="sub" id="as"></p>
+  <div id="ag" style="width:100%"></div>
 </div>
 
 <!-- Submitting -->
 <div id="sbt" class="screen">
   <div class="spin"></div>
-  <p class="sub" style="margin-top:12px">Recording attendance…</p>
+  <p class="sub" style="margin-top:12px" id="sbt-msg">Recording attendance…</p>
 </div>
 
 <!-- Success -->
@@ -163,10 +113,7 @@
   <div class="sc">
     <p class="sn" id="snm"></p>
     <p class="sub" id="sdt"></p>
-    <div class="brow">
-      <span class="badge">✅ GPS verified</span>
-      <span class="badge">✅ PIN verified</span>
-    </div>
+    <div class="brow"><span class="badge">✅ QR scanned</span><span class="badge">✅ PIN verified</span></div>
   </div>
   <p class="note" style="color:#10b981">Thank you! Have a great shift 👍</p>
   <p class="note" id="scd">Closing in 5 seconds…</p>
@@ -184,160 +131,178 @@
 <script src="capacitor.js"></script>
 <script>
 const API='https://serenity-hms.vercel.app';
-let gps=null, qrToken=localStorage.getItem('sqr')||'', pin='', vs=null, sl=null;
 
-function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
+// State — NO localStorage, fresh every time
+let qrToken='', pin='', gps=null, vs=null, sl=null;
 
-// PIN key press
-function pk(k){
-  if(k==='X'){pin=pin.slice(0,-1);}
-  else if(pin.length<6){pin+=k;}
-  // update dots
-  for(let i=0;i<6;i++) document.getElementById('d'+i).classList.toggle('on',i<pin.length);
-  document.getElementById('pe').textContent='';
-  // Auto-submit when 4+ digits entered
-  if(pin.length>=4){
-    clearTimeout(window._pt);
-    window._pt=setTimeout(async ()=>{
-      if(pin.length<4) return;
-      // Get current state from server
-      show('sbt');
-      document.querySelector('#sbt .sub').textContent='Checking…';
-      try {
-    const r=await fetch(`${API}/api/public/qr-attendance/pin-clock`,{
-          method:'POST',headers:{'Content-Type':'application/json'},
-          mode:'cors',
-          body:JSON.stringify({propertyQrToken:qrToken,pin,action:'GET_STATE',gpsLat:gps?.lat,gpsLng:gps?.lng,gpsAccuracyM:gps?.acc})
-        });
-        const j=await r.json();const d=j.data||j;
-        if(!r.ok){
-          if(r.status===401){
-            document.getElementById('pe').textContent='❌ Incorrect PIN. Try again.';
-            pin='';for(let i=0;i<6;i++)document.getElementById('d'+i).classList.remove('on');
-            show('sp');
-          } else {
-            document.getElementById('erm').textContent=d.error||'Error. Try again.';show('ser');
-          }
-          return;
-        }
-        // Show smart action button
-        showSmartAction(d.nextAction, d.employeeName, d.designation);
-      } catch(e){
-        document.getElementById('erm').textContent='Cannot connect to server.\nError: '+(e.message||e);show('ser');
-      }
-    },600);
-  }
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
 }
 
-// GPS
-async function startGps(){
-  show('sg');
-  document.getElementById('gs').textContent='Getting your location…';
-  try{
-    let coords;
-    if(window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.Geolocation){
-      await window.Capacitor.Plugins.Geolocation.requestPermissions();
-      const p=await window.Capacitor.Plugins.Geolocation.getCurrentPosition({enableHighAccuracy:true,timeout:15000});
-      coords=p.coords;
-    } else {
-      coords=await new Promise((res,rej)=>navigator.geolocation.getCurrentPosition(p=>res(p.coords),e=>rej(e),{enableHighAccuracy:true,timeout:15000,maximumAge:0}));
-    }
-    const lat=coords.latitude,lng=coords.longitude,acc=Math.round(coords.accuracy);
-    document.getElementById('gs').textContent=`Location found · ±${acc}m`;
-    if(qrToken){
-      const r=await fetch(`${API}/api/public/qr-attendance/pin-clock?token=${encodeURIComponent(qrToken)}&lat=${lat}&lng=${lng}&acc=${acc}`);
-      const j=await r.json();
-      if(!r.ok){document.getElementById('gem').textContent=(j.error||'Not at hotel location');show('sge');return;}
-      gps={lat,lng,acc};pin='';for(let i=0;i<6;i++)document.getElementById('d'+i).classList.remove('on');
-      document.getElementById('pe').textContent='';
-      show('sp');
-    } else {gps={lat,lng,acc};startQr();}
-  } catch(e){
-    document.getElementById('gem').textContent=e.code===1?'Location permission denied.\n\nGo to:\nSettings → Apps → Serenity Attendance → Permissions → Location → Allow':( e.message||'Cannot get location. Make sure GPS is on.');
-    show('sge');
-  }
-}
+// ── Start: always scan QR first ───────────────────────────────────────────────
+window.onload = () => startQr();
 
-// QR
+// ── QR Scan ───────────────────────────────────────────────────────────────────
 async function startQr(){
+  qrToken=''; // clear any previous token — always fresh scan
   show('sq');
+  document.getElementById('scan-status').textContent='Starting camera…';
   try{
-    vs=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}});
-    const v=document.getElementById('qv');v.srcObject=vs;await v.play();
+    vs=await navigator.mediaDevices.getUserMedia({video:{facingMode:'environment',width:{ideal:1280}}});
+    const v=document.getElementById('qv');
+    v.srcObject=vs; await v.play();
+    document.getElementById('scan-status').textContent='Point at the QR board';
     qrLoop();
-  } catch{skipQr();}
+  } catch(e){
+    document.getElementById('scan-status').textContent='Camera error: '+(e.message||e);
+  }
 }
+
 function qrLoop(){
   const v=document.getElementById('qv'),c=document.getElementById('qc'),ctx=c.getContext('2d');
   sl=requestAnimationFrame(()=>{
+    if(!vs){return;}
     if(v.readyState===v.HAVE_ENOUGH_DATA){
-      c.width=v.videoWidth;c.height=v.videoHeight;ctx.drawImage(v,0,0);
+      c.width=v.videoWidth;c.height=v.videoHeight;
+      ctx.drawImage(v,0,0);
       const img=ctx.getImageData(0,0,c.width,c.height);
       if(window.jsQR){
         const code=jsQR(img.data,img.width,img.height);
         if(code&&code.data){
           stopCam();
+          // Extract token
           let t=code.data;
           try{const u=new URL(code.data);t=u.searchParams.get('qr')||code.data;}catch{}
-          qrToken=t;localStorage.setItem('sqr',t);
-          pin='';for(let i=0;i<6;i++)document.getElementById('d'+i).classList.remove('on');
-          show('sp');return;
+          qrToken=t;
+          // Get GPS silently (non-blocking) then show PIN
+          getGpsSilent().then(()=>{
+            pin='';for(let i=0;i<6;i++)document.getElementById('d'+i).classList.remove('on');
+            document.getElementById('pe').textContent='';
+            show('sp');
+          });
+          return;
         }
       }
     }
     qrLoop();
   });
 }
-function stopCam(){if(sl)cancelAnimationFrame(sl);if(vs){vs.getTracks().forEach(t=>t.stop());vs=null;}}
-function skipQr(){stopCam();if(qrToken){pin='';show('sp');}else{document.getElementById('erm').textContent='No QR saved. Scan the entrance QR first.';show('ser');}}
 
-// Show smart single action button based on state
-function showSmartAction(nextAction, name, designation) {
-  const cfg = {
-    CLOCK_IN:    { emoji:'✅', label:'Clock In',    cls:'in',  color:'#10b981' },
-    BREAK_START: { emoji:'☕', label:'Take Break',  cls:'brk', color:'#f59e0b' },
-    BREAK_END:   { emoji:'🔙', label:'Resume Work', cls:'res', color:'#3b82f6' },
-    DONE:        { emoji:'🌙', label:'Shift Done',  cls:'out', color:'#64748b' },
-  };
-  const c = cfg[nextAction] || cfg.CLOCK_IN;
-  const ag = document.getElementById('ag');
-
-  if(nextAction === 'DONE'){
-    ag.innerHTML=`<div style="text-align:center;padding:20px">
-      <p style="font-size:48px">🌙</p>
-      <p style="font-size:18px;font-weight:700;margin:8px 0">Shift complete for today!</p>
-      <p style="color:#94a3b8;font-size:13px">You will be automatically clocked out after 8 hours.</p>
-    </div>`;
-  } else {
-    ag.innerHTML=`
-      <p style="font-size:14px;color:#94a3b8;margin-bottom:12px">Welcome, <strong style="color:#fff">${name}</strong></p>
-      <p style="font-size:12px;color:#64748b;margin-bottom:16px">${designation}</p>
-      <button class="ab ${c.cls}" style="width:100%;min-height:100px;font-size:20px;background:${c.color}" onclick="sub('${nextAction}')">
-        <span class="ei" style="font-size:48px">${c.emoji}</span>
-        ${c.label}
-      </button>`;
-  }
-  document.getElementById('at').textContent = '';
-  document.getElementById('as').textContent = '';
-  show('sa');
+function stopCam(){
+  if(sl)cancelAnimationFrame(sl);sl=null;
+  if(vs){vs.getTracks().forEach(t=>t.stop());vs=null;}
 }
-async function sub(action){
-  show('sbt');
+
+// ── GPS — silent, non-blocking ────────────────────────────────────────────────
+// GPS is collected for logging only — does NOT block the flow
+async function getGpsSilent(){
+  return new Promise((resolve)=>{
+    const done=(coords)=>{
+      if(coords) gps={lat:coords.latitude,lng:coords.longitude,acc:Math.round(coords.accuracy)};
+      resolve();
+    };
+    try{
+      if(window.Capacitor&&window.Capacitor.Plugins&&window.Capacitor.Plugins.Geolocation){
+        window.Capacitor.Plugins.Geolocation.requestPermissions()
+          .then(()=>window.Capacitor.Plugins.Geolocation.getCurrentPosition({enableHighAccuracy:true,timeout:5000}))
+          .then(p=>done(p.coords))
+          .catch(()=>done(null));
+      } else if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(p=>done(p.coords),()=>done(null),{enableHighAccuracy:true,timeout:5000,maximumAge:0});
+      } else { done(null); }
+    } catch{ done(null); }
+  });
+}
+
+// ── PIN ───────────────────────────────────────────────────────────────────────
+function pk(k){
+  if(k==='X'){
+    pin=pin.slice(0,-1);
+  } else if(pin.length<6){
+    pin+=k;
+  }
+  // Update dots
+  for(let i=0;i<6;i++) document.getElementById('d'+i).classList.toggle('on',i<pin.length);
+  document.getElementById('pe').textContent='';
+  // Enable ✓ button only when 4+ digits entered
+  const okBtn=document.getElementById('pin-ok');
+  if(pin.length>=4){
+    okBtn.disabled=false;
+  } else {
+    okBtn.disabled=true;
+  }
+}
+
+async function submitPin(){
+  if(pin.length<4) return;
+  document.getElementById('pin-ok').disabled=true;
+  show('sbt');document.getElementById('sbt-msg').textContent='Checking…';
   try{
     const r=await fetch(`${API}/api/public/qr-attendance/pin-clock`,{
-      method:'POST',headers:{'Content-Type':'application/json'},
-      mode:'cors',
+      method:'POST',headers:{'Content-Type':'application/json'},mode:'cors',
+      body:JSON.stringify({propertyQrToken:qrToken,pin,action:'GET_STATE',gpsLat:gps?.lat,gpsLng:gps?.lng,gpsAccuracyM:gps?.acc})
+    });
+    const j=await r.json();const d=j.data||j;
+    if(!r.ok){
+      if(r.status===401){
+        document.getElementById('pe').textContent='❌ Incorrect PIN. Try again.';
+        pin='';for(let i=0;i<6;i++)document.getElementById('d'+i).classList.remove('on');
+        document.getElementById('pin-ok').disabled=true;
+        show('sp');
+      } else {
+        document.getElementById('erm').textContent=d.error||'Error. Try again.';show('ser');
+      }
+      return;
+    }
+    showAction(d.nextAction,d.employeeName,d.designation);
+  } catch(e){
+    document.getElementById('erm').textContent='Cannot connect to server.\n\nError: '+(e.message||e);show('ser');
+  }
+}
+
+// ── Action button ─────────────────────────────────────────────────────────────
+function showAction(nextAction,name,designation){
+  const cfg={
+    CLOCK_IN:   {emoji:'✅',label:'Clock In',   color:'#10b981'},
+    BREAK_START:{emoji:'☕',label:'Take Break', color:'#f59e0b'},
+    BREAK_END:  {emoji:'🔙',label:'Resume Work',color:'#3b82f6'},
+    DONE:       {emoji:'🌙',label:'Shift Done', color:'#64748b'},
+  };
+  const c=cfg[nextAction]||cfg.CLOCK_IN;
+  const ag=document.getElementById('ag');
+  document.getElementById('at').textContent='';
+  document.getElementById('as').textContent='';
+  if(nextAction==='DONE'){
+    ag.innerHTML=`<div style="text-align:center;padding:20px"><p style="font-size:48px">🌙</p><p style="font-size:18px;font-weight:700;margin:8px 0">Shift complete!</p><p style="color:#94a3b8;font-size:13px">See you tomorrow.</p></div>`;
+    setTimeout(()=>restart(),4000);
+  } else {
+    ag.innerHTML=`
+      <p style="font-size:14px;color:#94a3b8;margin-bottom:8px">Welcome, <strong style="color:#fff">${name}</strong></p>
+      <p style="font-size:12px;color:#64748b;margin-bottom:14px">${designation}</p>
+      <button class="ab" style="min-height:110px;font-size:22px;background:${c.color}" onclick="sub('${nextAction}')">
+        <span class="ei" style="font-size:52px">${c.emoji}</span>${c.label}
+      </button>`;
+  }
+  show('sa');
+}
+
+// ── Submit ────────────────────────────────────────────────────────────────────
+async function sub(action){
+  show('sbt');document.getElementById('sbt-msg').textContent='Recording attendance…';
+  try{
+    const r=await fetch(`${API}/api/public/qr-attendance/pin-clock`,{
+      method:'POST',headers:{'Content-Type':'application/json'},mode:'cors',
       body:JSON.stringify({propertyQrToken:qrToken,pin,action,gpsLat:gps?.lat,gpsLng:gps?.lng,gpsAccuracyM:gps?.acc})
     });
     const j=await r.json();const d=j.data||j;
     if(!r.ok){
       if(r.status===401){
-        // Wrong PIN — go back and show error
         document.getElementById('pe').textContent='❌ Incorrect PIN. Try again.';
         pin='';for(let i=0;i<6;i++)document.getElementById('d'+i).classList.remove('on');
         show('sp');
       } else {
-        document.getElementById('erm').textContent=d.error||'Something went wrong. Try again.';show('ser');
+        document.getElementById('erm').textContent=d.error||'Something went wrong.';show('ser');
       }
       return;
     }
@@ -349,20 +314,25 @@ async function sub(action){
     document.getElementById('snm').textContent=d.employeeName||'';
     document.getElementById('sdt').textContent=(d.designation||'')+(d.department?' · '+d.department:'');
     show('ss');
-    // If auto clocked out — show special message
     if(d.autoClockOut){
       document.getElementById('scd').textContent='🌙 Shift complete! Rest well.';
+      setTimeout(()=>restart(),5000);
     } else {
       let s=5;const t=setInterval(()=>{s--;document.getElementById('scd').textContent=`Closing in ${s}s…`;if(s<=0){clearInterval(t);restart();}},1000);
     }
   } catch(e){
-    document.getElementById('erm').textContent='Cannot connect to server.\nMake sure you have internet.\n\nError: '+(e.message||e);show('ser');
+    document.getElementById('erm').textContent='Cannot connect to server.\n\nError: '+(e.message||e);show('ser');
   }
 }
 
-function restart(){pin='';for(let i=0;i<6;i++)document.getElementById('d'+i).classList.remove('on');document.getElementById('pe').textContent='';gps=null;stopCam();startGps();}
-
-window.onload=()=>startGps();
+function restart(){
+  pin='';qrToken='';gps=null;
+  for(let i=0;i<6;i++)document.getElementById('d'+i).classList.remove('on');
+  document.getElementById('pe').textContent='';
+  document.getElementById('pin-ok').disabled=true;
+  stopCam();
+  startQr(); // Always go back to QR scan
+}
 </script>
 </body>
 </html>
